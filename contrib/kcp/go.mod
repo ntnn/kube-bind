@@ -8,18 +8,24 @@ replace (
 	github.com/kube-bind/kube-bind/sdk => ../../sdk
 )
 
-require (
-	github.com/kcp-dev/client-go v0.0.0-20250728134101-0355faa9361b
+replace (
 	// kcp pinned to a commit on main as sdk/testing requires
 	// features not in the latest release
 	// Can use versioned when v0.28.2 releases
-	github.com/kcp-dev/kcp v0.28.1-0.20250926104223-cec2e15f24c6
-	github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
+	github.com/kcp-dev/kcp => github.com/kcp-dev/kcp v0.28.1-0.20250926104223-cec2e15f24c6
+	github.com/kcp-dev/kcp/sdk => github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
+)
+
+require (
+	github.com/gorilla/securecookie v1.1.1
+	github.com/headzoo/surf v1.0.1
+	github.com/kcp-dev/client-go v0.0.0-20250728134101-0355faa9361b
+	github.com/kcp-dev/kcp v0.0.0-00010101000000-000000000000
+	github.com/kcp-dev/kcp/sdk v0.28.1
 	github.com/kcp-dev/logicalcluster/v3 v3.0.5
 	github.com/kube-bind/kube-bind v0.0.0-00010101000000-000000000000
-	github.com/spf13/pflag v1.0.7
+	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
-	gopkg.in/headzoo/surf.v1 v1.0.1
 	k8s.io/apiextensions-apiserver v0.33.3
 	k8s.io/apimachinery v0.33.3
 	k8s.io/apiserver v0.33.3
@@ -27,6 +33,7 @@ require (
 	k8s.io/client-go v0.33.3
 	k8s.io/component-base v0.33.3
 	k8s.io/klog/v2 v2.130.1
+	sigs.k8s.io/controller-runtime v0.21.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -56,6 +63,7 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.21.0 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.0 // indirect
@@ -68,11 +76,9 @@ require (
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
-	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1 // indirect
-	github.com/headzoo/surf v1.0.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
@@ -143,11 +149,10 @@ require (
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397 // indirect
 	rsc.io/qr v0.2.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.31.2 // indirect
-	sigs.k8s.io/controller-runtime v0.21.0 // indirect
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.19.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
-	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.8 // indirect
+	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.9.0.20251002124257-36facc7fbe82 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 )
