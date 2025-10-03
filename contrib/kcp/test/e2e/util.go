@@ -164,7 +164,7 @@ func bootstrapKCP(t testing.TB, server kcptestingserver.RunningServer) {
 }
 
 // startBackend is a copy of framework.StartBackend but skips the CRDs
-// (which clashes with the APIResourceSchemas installed by kcp-init
+// (which clashes with the APIResourceSchemas installed by kcp-init.
 func startBackend(t *testing.T, args ...string) (string, *backend.Server) {
 	signingKey := securecookie.GenerateRandomKey(32)
 	require.NotEmpty(t, signingKey, "error creating signing key")
@@ -238,7 +238,6 @@ func startBackend(t *testing.T, args ...string) (string, *backend.Server) {
 	// t.Logf("backend listening on %s", addr)
 	//
 	// return addr, server
-
 }
 
 func bootstrapBackend(t *testing.T, server kcptestingserver.RunningServer) string {
