@@ -16,6 +16,16 @@ replace (
 	github.com/kcp-dev/kcp/sdk => github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
 )
 
+replace (
+	// There's currently bugs in mcr and kcp-dev/mcr, requiring
+	// these replaces. These can be removed when fixes are merged
+	// upstream.
+	github.com/kcp-dev/apimachinery/v2 => github.com/kcp-dev/apimachinery/v2 v2.0.1-0.20250728122101-adbf20db3e51
+	github.com/kcp-dev/multicluster-provider => github.com/mjudeikis/kcp-multicluster-provider v0.0.0-20250818102159-3d31cbb06ebe
+	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.21.0
+	sigs.k8s.io/multicluster-runtime => github.com/mjudeikis/sigs-multicluster-runtime v0.0.0-20250818101434-d8ebc45e169b
+)
+
 require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/headzoo/surf v1.0.1
