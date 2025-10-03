@@ -32,6 +32,8 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/rest"
 
 	"github.com/kube-bind/kube-bind/test/e2e/framework"
 )
@@ -65,7 +67,7 @@ func TestKCPIntegration(t *testing.T) {
 	providerWsPath, _ := kcptesting.NewWorkspaceFixture(t, server, logicalcluster.NewPath("root"), kcptesting.WithName("provider"))
 
 	t.Log("Create a provider kubeconfig")
-	_, providerKubeconfig := wsConfig(t, server, providerWsPath)
+	providerCfg, providerKubeconfig := wsConfig(t, server, providerWsPath)
 
 	t.Log("Bind kube-bind.io APIExport to provider workspace")
 	apiBinding := GenerateApiBinding(t, logicalcluster.NewPath("root").Join("kube-bind"), "kube-bind.io", "kube-bind.io",
@@ -131,21 +133,20 @@ func TestKCPIntegration(t *testing.T) {
 
 	// kube-bind process
 	t.Log("Perform binding process with browser")
-	performBindingWithBrowser(t, backendAddr, providerClusterID, consumerKubeconfig)
+	performBindingWithBrowser(t, backendAddr, providerClusterID, consumerCfg, consumerKubeconfig)
 	t.Log("Binding process completed")
 
 	t.Log("Testing resource creation and synchronization...")
-	testKCPResourceSync(t, consumerKubeconfig, providerKubeconfig)
+	testKCPResourceSync(t, consumerCfg, providerCfg)
 
 	t.Log("Success")
 }
 
-func testKCPResourceSync(t *testing.T, consumerConfig, providerConfig string) {
+func testKCPResourceSync(t *testing.T, consumerCfg, providerCfg *rest.Config) {
 	serviceGVR := schema.GroupVersionResource{Group: "wildwest.dev", Version: "v1alpha1", Resource: "cowboys"}
 
-	// Create clients
-	consumerClient := createDynamicClient(t, consumerConfig).Resource(serviceGVR)
-	providerClient := createDynamicClient(t, providerConfig).Resource(serviceGVR)
+	consumerClient := dynamic.NewForConfigOrDie(consumerCfg).Resource(serviceGVR)
+	providerClient := dynamic.NewForConfigOrDie(providerCfg).Resource(serviceGVR)
 
 	cowboyInstance := `
 apiVersion: wildwest.dev/v1alpha1
@@ -156,7 +157,6 @@ spec:
   intent: "draw"
 `
 
-	// Run structured tests similar to happy-case test
 	for _, tc := range []struct {
 		name string
 		step func(t *testing.T)

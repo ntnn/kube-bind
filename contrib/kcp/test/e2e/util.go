@@ -41,9 +41,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/cli-runtime/pkg/genericclioptions"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -296,7 +294,7 @@ func applyFile(t testing.TB, kubeconfig, file string) {
 	require.NoError(t, err, "failed to apply file %q: %s", file, output)
 }
 
-func performBindingWithBrowser(t *testing.T, backendAddr string, clusterID, consumerConfig string) {
+func performBindingWithBrowser(t *testing.T, backendAddr string, clusterID string, consumerCfg *rest.Config, consumerKubeconfig string) {
 	bindURL := fmt.Sprintf("http://%s/clusters/%s/exports", backendAddr, clusterID)
 	t.Logf("Bind URL: %s", bindURL)
 
@@ -306,7 +304,7 @@ func performBindingWithBrowser(t *testing.T, backendAddr string, clusterID, cons
 		go simulateKCPBrowser(t, authURLDryRunCh, "cowboys")
 
 		iostreams, _, bufOut, _ := genericclioptions.NewTestIOStreams()
-		framework.Bind(t, iostreams, authURLDryRunCh, nil, bindURL, "--kubeconfig", consumerConfig, "--dry-run")
+		framework.Bind(t, iostreams, authURLDryRunCh, nil, bindURL, "--kubeconfig", consumerKubeconfig, "--dry-run")
 		_, err := yaml.YAMLToJSON(bufOut.Bytes())
 		require.NoError(t, err, "Generated output is not valid YAML")
 	})
@@ -318,26 +316,26 @@ func performBindingWithBrowser(t *testing.T, backendAddr string, clusterID, cons
 
 		iostreams, _, _, _ := genericclioptions.NewTestIOStreams()
 		invocations := make(chan framework.SubCommandInvocation, 1)
-		framework.Bind(t, iostreams, authURLCh, invocations, bindURL, "--kubeconfig", consumerConfig)
+		framework.Bind(t, iostreams, authURLCh, invocations, bindURL, "--kubeconfig", consumerKubeconfig)
 		inv := <-invocations
 
 		inv.Args = append(
 			inv.Args,
-			"--kubeconfig="+consumerConfig,
+			"--kubeconfig="+consumerKubeconfig,
 			"--skip-konnector=true",
 			"--no-banner",
-			"-f=-", // api servie export from stdin
+			"-f=-", // api service export from stdin
 		)
 
 		framework.BindAPIService(t, inv.Stdin, "", inv.Args...)
 
 		// Wait for CRD to be created on consumer side
 		t.Logf("Waiting for cowboy CRD to be created on consumer side")
-		crdClient := framework.ApiextensionsClient(t, createConfigFromFile(t, consumerConfig)).ApiextensionsV1().CustomResourceDefinitions()
+		crdClient := framework.ApiextensionsClient(t, consumerCfg).ApiextensionsV1().CustomResourceDefinitions()
 		require.Eventually(t, func() bool {
 			_, err := crdClient.Get(context.Background(), "cowboys.wildwest.dev", metav1.GetOptions{})
 			return err == nil
-		}, 5*time.Minute, 5*time.Second, "waiting for cowboys CRD to be created on consumer side")
+		}, wait.ForeverTestTimeout, time.Millisecond*100)
 	})
 }
 
@@ -353,27 +351,12 @@ func simulateKCPBrowser(t *testing.T, authURLCh chan string, resource string) {
 	t.Logf("Waiting for browser to be at /resources")
 	framework.BrowserEventuallyAtPath(t, browser, "/resources")
 
-	// time.Sleep(10 * time.Minute)
-
-	// TODO(ntnn): Drop?
-	t.Log("Gathering links on the page:")
-	for _, link := range browser.Links() {
-		t.Logf(" - %q %q %s", link.Text, link.ID, link.URL.String())
-	}
-
 	t.Logf("Clicking %s resource", resource)
 	err = browser.Click("a." + resource)
 	require.NoError(t, err, "Failed to click resource link")
 
 	t.Logf("Waiting for browser to be forwarded to client")
 	framework.BrowserEventuallyAtPath(t, browser, "/callback")
-}
-
-// createConfigFromFile creates a rest.Config from a kubeconfig file path.
-func createConfigFromFile(t *testing.T, kubeconfigPath string) *rest.Config {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	require.NoError(t, err, "Failed to build config from kubeconfig file")
-	return config
 }
 
 // toUnstructured converts YAML manifest to unstructured object (from happy-case test).
@@ -385,15 +368,4 @@ func toUnstructured(t *testing.T, manifest string) *unstructured.Unstructured {
 	require.NoError(t, err, "Failed to unmarshal YAML manifest")
 
 	return &unstructured.Unstructured{Object: obj}
-}
-
-// Helper function to create a dynamic client from kubeconfig.
-func createDynamicClient(t *testing.T, kubeconfigPath string) dynamic.Interface {
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	require.NoError(t, err, "Failed to build config from kubeconfig")
-
-	client, err := dynamic.NewForConfig(config)
-	require.NoError(t, err, "Failed to create dynamic client")
-
-	return client
 }
