@@ -31,7 +31,6 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 
 	"github.com/kube-bind/kube-bind/test/e2e/framework"
@@ -125,8 +124,8 @@ func TestKCPIntegration(t *testing.T) {
 func testKCPResourceSync(t *testing.T, consumerCfg, providerCfg *rest.Config) {
 	serviceGVR := schema.GroupVersionResource{Group: "wildwest.dev", Version: "v1alpha1", Resource: "cowboys"}
 
-	consumerClient := dynamic.NewForConfigOrDie(consumerCfg).Resource(serviceGVR)
-	providerClient := dynamic.NewForConfigOrDie(providerCfg).Resource(serviceGVR)
+	consumerClient := framework.DynamicClient(t, consumerCfg).Resource(serviceGVR)
+	providerClient := framework.DynamicClient(t, consumerCfg).Resource(serviceGVR)
 
 	cowboyInstance := `
 apiVersion: wildwest.dev/v1alpha1
