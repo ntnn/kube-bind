@@ -16,6 +16,11 @@ replace (
 	github.com/kcp-dev/kcp/sdk => github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
 )
 
+require (
+	github.com/kcp-dev/kcp v0.28.1-0.20250926104223-cec2e15f24c6
+	github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
+)
+
 replace (
 	// There's currently bugs in mcr and kcp-dev/mcr, requiring
 	// these replaces. These can be removed when fixes are merged
@@ -30,11 +35,9 @@ require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/headzoo/surf v1.0.1
 	github.com/kcp-dev/client-go v0.0.0-20250728134101-0355faa9361b
-	github.com/kcp-dev/kcp v0.0.0-00010101000000-000000000000
-	github.com/kcp-dev/kcp/sdk v0.28.1
 	github.com/kcp-dev/logicalcluster/v3 v3.0.5
 	github.com/kube-bind/kube-bind v0.0.0-00010101000000-000000000000
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.7
 	github.com/stretchr/testify v1.10.0
 	k8s.io/apiextensions-apiserver v0.33.3
 	k8s.io/apimachinery v0.33.3
@@ -162,7 +165,7 @@ require (
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.19.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
-	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.9.0.20251002124257-36facc7fbe82 // indirect
+	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.8 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 )
