@@ -60,7 +60,7 @@ func init() {
 	log.SetLogger(klog.NewKlogr())
 }
 
-func GenerateApiBinding(t testing.TB, path logicalcluster.Path, name, exportName string, acceptPermissionClaims ...string) *kcpapisv1alpha2.APIBinding {
+func generateApiBinding(t testing.TB, path logicalcluster.Path, name, exportName string, acceptPermissionClaims ...string) *kcpapisv1alpha2.APIBinding {
 	t.Helper()
 
 	apiBinding := &kcpapisv1alpha2.APIBinding{
@@ -110,6 +110,31 @@ func GenerateApiBinding(t testing.TB, path logicalcluster.Path, name, exportName
 	}
 
 	return apiBinding
+}
+
+func createApiBinding(t testing.TB, client *kcpclientset.ClusterClientset, path logicalcluster.Path, apiBinding *kcpapisv1alpha2.APIBinding) *kcpapisv1alpha2.APIBinding {
+	t.Helper()
+
+	_, err := client.Cluster(path).
+		ApisV1alpha2().
+		APIBindings().
+		Create(t.Context(), apiBinding, metav1.CreateOptions{})
+	require.NoError(t, err, "Error creating APIBinding")
+
+	var inCluster *kcpapisv1alpha2.APIBinding
+	kcptestinghelpers.Eventually(t, func() (bool, string) {
+		var err error
+		inCluster, err = client.
+			Cluster(path).
+			ApisV1alpha2().
+			APIBindings().
+			Get(t.Context(), apiBinding.Name, metav1.GetOptions{})
+		if err != nil {
+			return false, fmt.Sprintf("Error getting APIBinding: %v", err)
+		}
+		return inCluster.Status.Phase == kcpapisv1alpha2.APIBindingPhaseBound, fmt.Sprintf("APIBinding not ready: %#v", inCluster.Status)
+	}, wait.ForeverTestTimeout, time.Millisecond*100)
+	return inCluster
 }
 
 func bootstrapKCP(t testing.TB, server kcptestingserver.RunningServer) {

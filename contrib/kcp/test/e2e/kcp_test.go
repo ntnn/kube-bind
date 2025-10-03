@@ -22,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	kcpapisv1alpha2 "github.com/kcp-dev/kcp/sdk/apis/apis/v1alpha2"
 	kcpclientset "github.com/kcp-dev/kcp/sdk/client/clientset/versioned/cluster"
 	kcptesting "github.com/kcp-dev/kcp/sdk/testing"
 	kcptestinghelpers "github.com/kcp-dev/kcp/sdk/testing/helpers"
@@ -69,36 +68,27 @@ func TestKCPIntegration(t *testing.T) {
 	t.Log("Create a provider kubeconfig")
 	providerCfg, providerKubeconfig := wsConfig(t, server, providerWsPath)
 
-	t.Log("Bind kube-bind.io APIExport to provider workspace")
-	apiBinding := GenerateApiBinding(t, logicalcluster.NewPath("root").Join("kube-bind"), "kube-bind.io", "kube-bind.io",
-		"clusterrolebindings.rbac.authorization.k8s.io",
-		"clusterroles.rbac.authorization.k8s.io",
-		"customresourcedefinitions.apiextensions.k8s.io",
-		"serviceaccounts.core",
-		"configmaps.core",
-		"secrets.core",
-		"namespaces.core",
-		"roles.rbac.authorization.k8s.io",
-		"rolebindings.rbac.authorization.k8s.io",
-		"apiresourceschemas.apis.kcp.io",
-	)
-
 	cfg := server.BaseConfig(t)
 	kcpClusterClient, err := kcpclientset.NewForConfig(cfg)
 	require.NoError(t, err, "failed to create kcp client")
 
-	kcptestinghelpers.Eventually(t, func() (bool, string) {
-		_, err := kcpClusterClient.Cluster(providerWsPath).ApisV1alpha2().APIBindings().Create(t.Context(), apiBinding, metav1.CreateOptions{})
-		return err == nil, fmt.Sprintf("Error creating APIBinding: %v", err)
-	}, wait.ForeverTestTimeout, time.Millisecond*100)
-
-	kcptestinghelpers.Eventually(t, func() (bool, string) {
-		inCluster, err := kcpClusterClient.Cluster(providerWsPath).ApisV1alpha2().APIBindings().Get(t.Context(), apiBinding.Name, metav1.GetOptions{})
-		if err != nil {
-			return false, fmt.Sprintf("Error getting APIBinding: %v", err)
-		}
-		return inCluster.Status.Phase == kcpapisv1alpha2.APIBindingPhaseBound, fmt.Sprintf("APIBinding not ready: %#v", inCluster.Status)
-	}, wait.ForeverTestTimeout, time.Millisecond*100)
+	t.Log("Bind kube-bind.io APIExport to provider workspace")
+	createApiBinding(t,
+		kcpClusterClient,
+		providerWsPath,
+		generateApiBinding(t, logicalcluster.NewPath("root").Join("kube-bind"), "kube-bind.io", "kube-bind.io",
+			"clusterrolebindings.rbac.authorization.k8s.io",
+			"clusterroles.rbac.authorization.k8s.io",
+			"customresourcedefinitions.apiextensions.k8s.io",
+			"serviceaccounts.core",
+			"configmaps.core",
+			"secrets.core",
+			"namespaces.core",
+			"roles.rbac.authorization.k8s.io",
+			"rolebindings.rbac.authorization.k8s.io",
+			"apiresourceschemas.apis.kcp.io",
+		),
+	)
 
 	t.Log("Applying example APIExport and APIResourceSchemas to provider workspace")
 	applyFile(t, providerKubeconfig, "../../deploy/examples/apiexport.yaml")
@@ -106,20 +96,11 @@ func TestKCPIntegration(t *testing.T) {
 	applyFile(t, providerKubeconfig, "../../deploy/examples/apiresourceschema-sheriffs.yaml")
 
 	t.Log("Bind the APIExport locally")
-	apiBinding2 := GenerateApiBinding(t, providerWsPath, "cowboys-stable", "cowboys-stable")
-
-	kcptestinghelpers.Eventually(t, func() (bool, string) {
-		_, err = kcpClusterClient.Cluster(providerWsPath).ApisV1alpha2().APIBindings().Create(t.Context(), apiBinding2, metav1.CreateOptions{})
-		return err == nil, fmt.Sprintf("Error creating APIBinding: %v", err)
-	}, wait.ForeverTestTimeout, time.Millisecond*100)
-
-	kcptestinghelpers.Eventually(t, func() (bool, string) {
-		inCluster, err := kcpClusterClient.Cluster(providerWsPath).ApisV1alpha2().APIBindings().Get(t.Context(), apiBinding2.Name, metav1.GetOptions{})
-		if err != nil {
-			return false, fmt.Sprintf("Error getting APIBinding: %v", err)
-		}
-		return inCluster.Status.Phase == kcpapisv1alpha2.APIBindingPhaseBound, fmt.Sprintf("APIBinding not ready: %#v", inCluster.Status)
-	}, wait.ForeverTestTimeout, time.Millisecond*100)
+	createApiBinding(t,
+		kcpClusterClient,
+		providerWsPath,
+		generateApiBinding(t, providerWsPath, "cowboys-stable", "cowboys-stable"),
+	)
 
 	t.Log("Get logical cluster of provider workspace")
 	providerCluster, err := kcpClusterClient.Cluster(providerWsPath).CoreV1alpha1().LogicalClusters().Get(t.Context(), "cluster", metav1.GetOptions{})
@@ -134,7 +115,6 @@ func TestKCPIntegration(t *testing.T) {
 	// kube-bind process
 	t.Log("Perform binding process with browser")
 	performBindingWithBrowser(t, backendAddr, providerClusterID, consumerCfg, consumerKubeconfig)
-	t.Log("Binding process completed")
 
 	t.Log("Testing resource creation and synchronization...")
 	testKCPResourceSync(t, consumerCfg, providerCfg)
