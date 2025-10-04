@@ -9,6 +9,14 @@ replace (
 	github.com/kube-bind/kube-bind/sdk => ./sdk
 )
 
+replace (
+	// kcp pinned to a commit on main as sdk/testing requires
+	// features not in the latest release
+	// Can use versioned when v0.28.2 releases
+	github.com/kcp-dev/kcp => github.com/kcp-dev/kcp v0.28.1-0.20250926104223-cec2e15f24c6
+	github.com/kcp-dev/kcp/sdk => github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
+)
+
 require (
 	github.com/coreos/go-oidc/v3 v3.15.0
 	github.com/dexidp/dex/api/v2 v2.3.0

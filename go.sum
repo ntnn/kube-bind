@@ -133,8 +133,8 @@ github.com/kcp-dev/code-generator/v3 v3.0.0-20250707080944-4094fb87e20f h1:Qfpk7
 github.com/kcp-dev/code-generator/v3 v3.0.0-20250707080944-4094fb87e20f/go.mod h1:1EZhJqiFvXq1N0xKJnJOf8kQ++wuwLkqFGIRVSoVACk=
 github.com/kcp-dev/kcp/pkg/apis v0.11.0 h1:K6p+tNHNcvfACCPLcHgY0EMLeaIwR1jS491FyLfXMII=
 github.com/kcp-dev/kcp/pkg/apis v0.11.0/go.mod h1:8cUAmfMJcksauz53UtsLYG8Phhx62rvuCnd/5t/Zihk=
-github.com/kcp-dev/kcp/sdk v0.28.1 h1:bTtuHVjFRjbwFEqXTPxc1J1JP2Hc3mTYqQ2xfJsi16M=
-github.com/kcp-dev/kcp/sdk v0.28.1/go.mod h1:8oZpWxkoMu2TDpx5DgdIGDigByKHKkeqVMA4GiWneoI=
+github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6 h1:bOR4mdLD24VCJRrHxmtTh21AdbbzkBBKkEh0ngL+XTc=
+github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6/go.mod h1:aC2BPGPvy8QtkI2gQNH9NfW6xpfGIKZkR93gy9O02BE=
 github.com/kcp-dev/logicalcluster/v3 v3.0.5 h1:JbYakokb+5Uinz09oTXomSUJVQsqfxEvU4RyHUYxHOU=
 github.com/kcp-dev/logicalcluster/v3 v3.0.5/go.mod h1:EWBUBxdr49fUB1cLMO4nOdBWmYifLbP1LfoL20KkXYY=
 github.com/kcp-dev/multicluster-provider v0.2.1-0.20251002133408-9a8d21dc2872 h1:8lXF2+AwZL1BpWTUVwO/32lzzQ8ggTPSlHlN3Mm9qCA=
