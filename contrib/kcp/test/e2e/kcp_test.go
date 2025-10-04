@@ -118,6 +118,8 @@ func TestKCPIntegration(t *testing.T) {
 	t.Log("Testing resource creation and synchronization...")
 	testKCPResourceSync(t, consumerCfg, providerCfg)
 
+	time.Sleep(30 * time.Minute) // for testing
+
 	t.Log("Success")
 }
 

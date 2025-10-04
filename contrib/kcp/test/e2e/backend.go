@@ -33,6 +33,7 @@ import (
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/component-base/logs"
 
 	"github.com/kube-bind/kube-bind/backend"
 	"github.com/kube-bind/kube-bind/backend/options"
@@ -64,7 +65,8 @@ func startBackend(t *testing.T, args ...string) (string, *backend.Server) {
 	err := fs.Parse(args)
 	require.NoError(t, err)
 
-	t.Logf("starting backend with options: %#v", opts)
+	opts.Logs = logs.NewOptions()
+	opts.Logs.Verbosity = 10
 
 	// use a random port via an explicit listener. Then add a kube-bind-<port> client to dex
 	// with the callback URL set to the listener's address.
