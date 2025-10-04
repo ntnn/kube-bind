@@ -20,7 +20,7 @@ require (
 	github.com/kcp-dev/code-generator/v3 v3.0.0-20250707080944-4094fb87e20f
 	github.com/kcp-dev/kcp/pkg/apis v0.11.0
 	github.com/kcp-dev/kcp/sdk v0.28.1
-	github.com/kcp-dev/multicluster-provider 9a8d21dc287247a9b0cf5c76523d21b6240fa7c4
+	github.com/kcp-dev/multicluster-provider v0.2.1-0.20251002133408-9a8d21dc2872
 	github.com/kube-bind/kube-bind/cli v0.0.0-20250515145715-d9f20e7c840d
 	github.com/kube-bind/kube-bind/sdk v0.4.1
 	github.com/martinlindhe/base36 v1.1.1
@@ -42,7 +42,7 @@ require (
 	k8s.io/utils v0.0.0-20250604170112-4c0f3b243397
 	sigs.k8s.io/controller-runtime v0.21.0
 	sigs.k8s.io/controller-tools v0.16.1
-	sigs.k8s.io/multicluster-runtime d465a1baabd961ddb8aaf55c5ed214077cba1765
+	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.9.0.20251003054456-d465a1baabd9
 	sigs.k8s.io/yaml v1.4.0
 )
 
