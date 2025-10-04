@@ -19,8 +19,8 @@ package e2e
 import (
 	"encoding/base64"
 	"fmt"
+	"net"
 	"net/http"
-	"os/exec"
 	"testing"
 	"time"
 
@@ -29,12 +29,14 @@ import (
 	kcptestinghelpers "github.com/kcp-dev/kcp/sdk/testing/helpers"
 	kcptestingserver "github.com/kcp-dev/kcp/sdk/testing/server"
 	"github.com/kcp-dev/logicalcluster/v3"
-	"github.com/stretchr/testify/assert"
+	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	"github.com/kube-bind/kube-bind/backend"
+	"github.com/kube-bind/kube-bind/backend/options"
+	"github.com/kube-bind/kube-bind/test/e2e/framework"
 )
 
 // startBackend is a copy of framework.StartBackend but skips the CRDs
@@ -45,8 +47,6 @@ func startBackend(t *testing.T, args ...string) (string, *backend.Server) {
 	encryptionKey := securecookie.GenerateRandomKey(32)
 	require.NotEmpty(t, encryptionKey, "error creating encryption key")
 
-	addr := "127.0.0.1:8080"
-
 	args = append(
 		[]string{
 			"--oidc-issuer-client-secret=ZXhhbXBsZS1hcHAtc2VjcmV0",
@@ -54,27 +54,47 @@ func startBackend(t *testing.T, args ...string) (string, *backend.Server) {
 			"--oidc-issuer-url=http://127.0.0.1:5556/dex",
 			"--cookie-signing-key=" + base64.StdEncoding.EncodeToString(signingKey),
 			"--cookie-encryption-key=" + base64.StdEncoding.EncodeToString(encryptionKey),
-
-			"--listen-address=" + addr,
-			"--oidc-callback-url=http://127.0.0.1:8080/callback",
 		},
 		args...,
 	)
 
-	backendCmd := exec.CommandContext(t.Context(),
-		"../../../../bin/backend",
-		args...,
-	)
-	backendCmd.Stdout = newLogWriter("[backend stdout] ", t)
-	backendCmd.Stderr = newLogWriter("[backend stderr] ", t)
-	require.NoError(t, backendCmd.Start())
-	t.Cleanup(func() {
-		if backendCmd.Process != nil {
-			t.Logf("Stopping dex (PID: %d)", backendCmd.Process.Pid)
-			assert.NoError(t, backendCmd.Process.Kill())
-		}
-	})
-	return addr, nil
+	fs := pflag.NewFlagSet("backend", pflag.ContinueOnError)
+	opts := options.NewOptions()
+	opts.AddFlags(fs)
+	err := fs.Parse(args)
+	require.NoError(t, err)
+
+	t.Logf("starting backend with options: %#v", opts)
+
+	// use a random port via an explicit listener. Then add a kube-bind-<port> client to dex
+	// with the callback URL set to the listener's address.
+	opts.Serve.Listener, err = net.Listen("tcp", "localhost:0")
+	require.NoError(t, err)
+	addr := opts.Serve.Listener.Addr()
+	_, port, err := net.SplitHostPort(addr.String())
+	require.NoError(t, err)
+
+	opts.OIDC.IssuerClientID = "kube-bind-" + port
+	framework.CreateDexClient(t, addr)
+
+	opts.ExtraOptions.TestingSkipNameValidation = true
+	opts.ExtraOptions.SchemaSource = options.CustomResourceDefinitionSource.String()
+
+	completed, err := opts.Complete()
+	require.NoError(t, err)
+
+	config, err := backend.NewConfig(completed)
+	require.NoError(t, err)
+
+	server, err := backend.NewServer(t.Context(), config)
+	require.NoError(t, err)
+
+	err = server.Run(t.Context())
+	require.NoError(t, err)
+	t.Logf("backend listening on %s", addr)
+
+	return addr.String(), server
+
 }
 
 func bootstrapBackend(t *testing.T, server kcptestingserver.RunningServer) string {
