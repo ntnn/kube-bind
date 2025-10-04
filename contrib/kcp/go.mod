@@ -18,17 +18,7 @@ replace (
 
 require (
 	github.com/kcp-dev/kcp v0.28.1-0.20250926104223-cec2e15f24c6
-	github.com/kcp-dev/kcp/sdk v0.28.1-0.20250926104223-cec2e15f24c6
-)
-
-replace (
-	// There's currently bugs in mcr and kcp-dev/mcr, requiring
-	// these replaces. These can be removed when fixes are merged
-	// upstream.
-	github.com/kcp-dev/apimachinery/v2 => github.com/kcp-dev/apimachinery/v2 v2.0.1-0.20250728122101-adbf20db3e51
-	github.com/kcp-dev/multicluster-provider => github.com/mjudeikis/kcp-multicluster-provider v0.0.0-20250818102159-3d31cbb06ebe
-	sigs.k8s.io/controller-runtime => sigs.k8s.io/controller-runtime v0.21.0
-	sigs.k8s.io/multicluster-runtime => github.com/mjudeikis/sigs-multicluster-runtime v0.0.0-20250818101434-d8ebc45e169b
+	github.com/kcp-dev/kcp/sdk v0.28.1
 )
 
 require (
@@ -97,7 +87,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kcp-dev/apimachinery/v2 v2.0.1-0.20250728122101-adbf20db3e51 // indirect
 	github.com/kcp-dev/kcp/pkg/apis v0.11.0 // indirect
-	github.com/kcp-dev/multicluster-provider v0.1.0 // indirect
+	github.com/kcp-dev/multicluster-provider v0.2.1-0.20251002133408-9a8d21dc2872 // indirect
 	github.com/kube-bind/kube-bind/cli v0.0.0-20250515145715-d9f20e7c840d // indirect
 	github.com/kube-bind/kube-bind/sdk v0.4.1 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
@@ -165,7 +155,7 @@ require (
 	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
 	sigs.k8s.io/kustomize/api v0.19.0 // indirect
 	sigs.k8s.io/kustomize/kyaml v0.19.0 // indirect
-	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.8 // indirect
+	sigs.k8s.io/multicluster-runtime v0.21.0-alpha.9.0.20251003054456-d465a1baabd9 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 )
