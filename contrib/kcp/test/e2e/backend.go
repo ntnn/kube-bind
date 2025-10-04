@@ -24,12 +24,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/alecthomas/assert/v2"
 	"github.com/gorilla/securecookie"
 	kcpclientset "github.com/kcp-dev/kcp/sdk/client/clientset/versioned/cluster"
 	kcptestinghelpers "github.com/kcp-dev/kcp/sdk/testing/helpers"
 	kcptestingserver "github.com/kcp-dev/kcp/sdk/testing/server"
 	"github.com/kcp-dev/logicalcluster/v3"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
